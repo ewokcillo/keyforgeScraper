@@ -18,17 +18,15 @@ class CardsSpider(scrapy.Spider):
     start_urls = [PAGE_URL.format(1, PAGE_SIZE)]
 
     def parse(self, response):
-        page = urlparse.parse_qs(response.url.split('?')[-1])['page'][-1]
+        page = int(urlparse.parse_qs(response.url.split('?')[-1])['page'][-1])
         page_json = json.loads(response.body)
 
-        count = 2
-        while page != page_json['count']:
-            yield Request(PAGE_URL.format(count, PAGE_SIZE))
+        if page != page_json['count']:
+            yield Request(PAGE_URL.format(page+1, PAGE_SIZE))
 
-            for deck in page_json['data']:
-                yield Request(DECK_URL.format(deck['id']),
-                              callback=self.parse_deck)
-            count += 1
+        for deck in page_json['data']:
+            yield Request(DECK_URL.format(deck['id']),
+                          callback=self.parse_deck)
 
     def parse_deck(self, response):
         deck_json = json.loads(response.body)

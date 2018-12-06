@@ -16,6 +16,9 @@ class CardsSpider(scrapy.Spider):
     name = 'cards'
     allowed_domains = ['keyforgegame.com']
     start_urls = [PAGE_URL.format(1, PAGE_SIZE)]
+    custom_settings = {
+        'COLLECTION_NAME': 'cards'
+    }
 
     def parse(self, response):
         page = int(urlparse.parse_qs(response.url.split('?')[-1])['page'][-1])

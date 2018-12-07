@@ -23,7 +23,7 @@ class KeyforgePipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
-        self.db[spider.settings.get('COLLECTION_NAME', 'items')].replace_one(
+        self.db[item.pop('collection')].replace_one(
             {'id': item['id']}, item, True
         )
         return item

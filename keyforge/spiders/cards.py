@@ -16,9 +16,6 @@ class CardsSpider(scrapy.Spider):
     name = 'cards'
     allowed_domains = ['keyforgegame.com']
     start_urls = [PAGE_URL.format(1, PAGE_SIZE)]
-    custom_settings = {
-        'COLLECTION_NAME': 'cards'
-    }
 
     def parse(self, response):
         page = int(urlparse.parse_qs(response.url.split('?')[-1])['page'][-1])
@@ -28,10 +25,13 @@ class CardsSpider(scrapy.Spider):
             yield Request(PAGE_URL.format(page+1, PAGE_SIZE))
 
         for deck in page_json['data']:
+            deck['collection'] = 'decks'
+            yield deck
             yield Request(DECK_URL.format(deck['id']),
                           callback=self.parse_deck)
 
     def parse_deck(self, response):
         deck_json = json.loads(response.body)
         for card in deck_json['_linked']['cards']:
+            card['collection'] = 'cards'
             yield card
